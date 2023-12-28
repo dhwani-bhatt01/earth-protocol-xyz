@@ -27,6 +27,7 @@ import withdraw_greenImg from "@/assets/images/withdraw_green.svg";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Decimal from "decimal.js";
 import { ethers } from "ethers";
+import Image from "next/image";
 import { Accordion, AccordionTab } from "primereact/accordion";
 import { Dialog } from "primereact/dialog";
 import { TabPanel, TabView } from "primereact/tabview";
@@ -199,12 +200,15 @@ const CustomAccordianHeader2: React.FC<CustomTabHeaderProps> = ({
 export default function Home() {
 	const baseRPCUrl = "https://opbnb-mainnet-rpc.bnbchain.org";
 	const parentStrategyValContractExplorer =
-		"https://mainnet.opbnbscan.com/address/0x46ECf770a99d5d81056243deA22ecaB7271a43C7";
+		"https://mainnet.opbnbscan.com/address/0x86E6b3c84eaaDa895017b5ad1A44e9ea63c3cCe5";
 	const parentStrategyValContract =
-		"0x46ECf770a99d5d81056243deA22ecaB7271a43C7";
+		// "0x46ECf770a99d5d81056243deA22ecaB7271a43C7";
+		"0x86E6b3c84eaaDa895017b5ad1A44e9ea63c3cCe5";
 	const staticValutList = [
-		"0xAbaf80156857E05b1EB162552Bea517b25F29aD9",
-		"0xA7B88e482d3C9d17A1b83bc3FbeB4DF72cB20478",
+		// "0xAbaf80156857E05b1EB162552Bea517b25F29aD9",
+		// "0xA7B88e482d3C9d17A1b83bc3FbeB4DF72cB20478",
+		"0xEd16712bEaD2b6eed8cd514F8fB8a0151CCb8689",
+		"0x9974DA8Cb3cb6C4b5121aE25FD87A8a0F3cB544b",
 	];
 	const staticLpValut = ["0x3dbfDf42AEbb9aDfFDe4D8592D61b1de7bd7c26a"];
 	const [epochRunning, setEpochRunning] = useState<any>();
@@ -276,12 +280,12 @@ export default function Home() {
 						) {
 							const prsVal =
 								e.log_events[e.log_events.length - 1].decoded.params;
-							value = ethers.utils.formatEther(prsVal[prsVal.length - 1].value);
+							value = ethers.formatEther(prsVal[prsVal.length - 1].value);
 						} else if (
 							e.log_events[e.log_events.length - 1].decoded.name === "Deposit"
 						) {
 							const prsVal = e.log_events[0].decoded.params;
-							value = ethers.utils.formatEther(prsVal[prsVal.length - 1].value);
+							value = ethers.formatEther(prsVal[prsVal.length - 1].value);
 						}
 					}
 
@@ -289,7 +293,7 @@ export default function Home() {
 						date: time,
 						type: type,
 						txHash: txhash,
-						txfee: ethers.utils.formatEther(txfee),
+						txfee: ethers.formatEther(txfee),
 						value: value,
 					};
 					return returnVal;
@@ -314,7 +318,7 @@ export default function Home() {
 				);
 				const assetAbiResponseJson = await assetAbiResponse.json();
 
-				const localProvider = new ethers.providers.JsonRpcProvider(baseRPCUrl);
+				const localProvider = new ethers.JsonRpcProvider(baseRPCUrl);
 				const vaultContract = getContract(
 					vaultAddressVal as string,
 					earthAutoCompoundingVaultPublicJson.abi,
@@ -322,16 +326,16 @@ export default function Home() {
 				);
 
 				let totalAssets = await vaultContract.totalAssets(); //it will return the total assets of the valut
-				totalAssets = ethers.utils.formatEther(totalAssets);
+				totalAssets = ethers.formatEther(totalAssets);
 
 				if (address) {
 					let totalSupply = await vaultContract.totalSupply();
-					totalSupply = ethers.utils.formatEther(totalSupply);
+					totalSupply = ethers.formatEther(totalSupply);
 
 					const assetAdress = await vaultContract.asset();
 					console.log("asset adress: " + assetAdress);
 					let share = await vaultContract.balanceOf(address);
-					share = ethers.utils.formatEther(share);
+					share = ethers.formatEther(share);
 					const userShareVal = new Decimal(totalAssets)
 						.mul(new Decimal(share))
 						.div(new Decimal(totalSupply));
@@ -345,11 +349,11 @@ export default function Home() {
 						provider
 					);
 					const balance = await asstsContract.balanceOf(address);
-					console.log("wallet balance", ethers.utils.formatEther(balance));
+					console.log("wallet balance", ethers.formatEther(balance));
 					console.log("tvl", fnum(totalAssets));
-					walletBalance = ethers.utils.formatEther(balance);
+					walletBalance = ethers.formatEther(balance);
 					walletBalance = Number(walletBalance).toFixed(2);
-					setWalletBalance(ethers.utils.formatEther(balance));
+					setWalletBalance(ethers.formatEther(balance));
 				}
 
 				return {
@@ -389,7 +393,7 @@ export default function Home() {
 	async function getDeployedValut() {
 		setIsDataLoadng(true);
 		debugger;
-		const mantleLocalProvied = new ethers.providers.JsonRpcProvider(baseRPCUrl);
+		const mantleLocalProvied = new ethers.JsonRpcProvider(baseRPCUrl);
 
 		const parentStrategy = getContract(
 			parentStrategyValContract as string,
@@ -400,7 +404,7 @@ export default function Home() {
 		setEpochRunning(epochRunningVal);
 		console.log("parentStrategy is running", epochRunningVal);
 		const balanceOfPoolVal = await parentStrategy.balanceOfPool();
-		const formateBalanceOfPoolVal = ethers.utils.formatEther(balanceOfPoolVal);
+		const formateBalanceOfPoolVal = ethers.formatEther(balanceOfPoolVal);
 		setStartingBalance(Number(formateBalanceOfPoolVal).toFixed(8));
 		console.log("balanceOfPoolVal", balanceOfPoolVal);
 
@@ -532,7 +536,7 @@ export default function Home() {
 			depositAmout = "0";
 		}
 
-		let localProvider = new ethers.providers.JsonRpcProvider(baseRPCUrl);
+		let localProvider = new ethers.JsonRpcProvider(baseRPCUrl);
 		let vaultContract = getContract(
 			valutAddressVal as string,
 			earthAutoCompoundingVaultPublicJson.abi,
@@ -542,9 +546,9 @@ export default function Home() {
 
 		const erc20Contract = getContract(assetAdress, erc20Json.abi, signer);
 		const allowance = await erc20Contract.allowance(address, valutAddressVal); //address:- login user address  //assetAdress:-valut asset address
-		setMaxLimit(ethers.utils.formatEther(allowance));
+		setMaxLimit(ethers.formatEther(allowance));
 
-		const maxLimitVal = new Decimal(ethers.utils.formatEther(allowance));
+		const maxLimitVal = new Decimal(ethers.formatEther(allowance));
 		const despositAmtVal = new Decimal(depositAmout);
 		if (despositAmtVal.gt(maxLimitVal)) {
 			setisApproved(false);
@@ -557,23 +561,6 @@ export default function Home() {
 		setTransactionType("Deposit");
 		const despositAmtVal = new Decimal(depositAmout);
 		const walletBalanceVal = new Decimal(walletBalance);
-
-		// if (despositAmtVal.lt(new Decimal("0.0001"))) {
-		//   const message = "Min Limit 0.0001";
-		//   showWarn("Warning", message);
-		//   return;
-		// }
-
-		// if (despositAmtVal.gt(walletBalanceVal)) {
-		//   const message = "Insufficient Balance";
-		//   showWarn("Warning", message);
-		//   return;
-		// }
-
-		// if ((Number(deatils.tvl) + Number(depositAmout)) > Number(tvlCap)) {
-		//   showWarn("Warning", "Vault Capacity Reached");
-		//   return;
-		// }
 
 		debugger;
 
@@ -627,26 +614,8 @@ export default function Home() {
 
 	const withdraw = async () => {
 		setTransactionType("Withdraw");
-		// if (withdrawAmout < 0.0001 || withdrawAmout > Number(userShare)) {
-		//   const message = "Please enter a valid amount.";
-		//   showWarn(message);
-		//   return;
-		// }
-
 		const withdrawAmoutVal = new Decimal(withdrawAmout);
 		const userHohlding = new Decimal(userShare);
-
-		// if (withdrawAmoutVal.lt(new Decimal("0.0001"))) {
-		//   const message = "Min Limit 0.0001";
-		//   showWarn("Warning", message);
-		//   return;
-		// }
-
-		// if (withdrawAmoutVal.gt(userHohlding)) {
-		//   const message = "Insufficient Holdings";
-		//   showWarn("Warning", message);
-		//   return;
-		// }
 
 		const contract = getContract(
 			vaultAddress as string,
@@ -732,7 +701,7 @@ export default function Home() {
 								<div>
 									<span className="ml_12 opct_61">DEX</span>
 									<br />
-									<img
+									<Image
 										src={binarySwapImg.src}
 										alt="chain"
 										className="wdth_80px"
@@ -767,7 +736,7 @@ export default function Home() {
 									<div className="dsp mb-4">
 										<div className="wdth_50 d-flex align-items-center">
 											<div className="mr_20 redCircle">
-												<img
+												<Image
 													src={strategyRedImg.src}
 													alt="chain"
 													className="wdth_35"
@@ -777,7 +746,7 @@ export default function Home() {
 												<span className="clsHeaderColor">
 													Strategy is active now
 												</span>
-												<img
+												<Image
 													src={externalLinkRedImg.src}
 													onClick={() => {
 														goToUrl(parentStrategyValContractExplorer);
@@ -796,7 +765,7 @@ export default function Home() {
 										<div>
 											<div className="closeRedBox">
 												<span className="opct_61">Epoch closes on</span>{" "}
-												<img src={timerRedImg.src} alt="chain" />{" "}
+												<Image src={timerRedImg.src} alt="chain" />{" "}
 												<span>30 September 2023 | 16:30:00</span>
 											</div>
 										</div>
@@ -844,7 +813,7 @@ export default function Home() {
 									<div className="dsp">
 										<div className="wdth_50 d-flex align-items-center">
 											<div className="mr_20 greenCircle">
-												<img
+												<Image
 													src={supplyImg.src}
 													alt="chain"
 													className="wdth_35"
@@ -865,7 +834,7 @@ export default function Home() {
 										<div>
 											<div className="firstGreenBox">
 												<span className="opct_61">Epoch starts on </span>{" "}
-												<img src={timerImg.src} alt="chain" />{" "}
+												<Image src={timerImg.src} alt="chain" />{" "}
 												<span>1 October 2023 | 16:30:00</span>
 											</div>
 										</div>
@@ -877,11 +846,15 @@ export default function Home() {
 						<div className="bstd_sectiopn">
 							<div className="dsp_cont">
 								<div className="bx_cntn firstGreenBoxBoosted primary_header_color sbHrd">
-									<img src={bostedGreenImg.src} className="mr_10" alt="green" />
+									<Image
+										src={bostedGreenImg.src}
+										className="mr_10"
+										alt="green"
+									/>
 									Fixed return for low risk investors
 								</div>
 								<div className="bx_cntn firstRedBoxBoosted secondary_header_color sbHrd">
-									<img src={bostedRedImg} className="mr_10" alt="red" />
+									<Image src={bostedRedImg} className="mr_10" alt="red" />
 									Boosted return for market-makers
 								</div>
 							</div>
@@ -899,14 +872,14 @@ export default function Home() {
 												<div className="dsp">
 													<div className="header_font_size">
 														<span>
-															<img
+															<Image
 																src={e.assetImg}
 																alt="btc img"
 																className="btc_img_width"
 															/>
 														</span>
 														{e.name}{" "}
-														<img
+														<Image
 															src={externalLinkGreenImg}
 															onClick={() => {
 																goToUrl(e.contractExplorer);
@@ -947,7 +920,7 @@ export default function Home() {
 																		openWithdrawOrDeposit(e, 0);
 																	}}
 																>
-																	<img
+																	<Image
 																		src={deposit_greenImg}
 																		className="wtdrw_depost_btn"
 																		alt="deposit"
@@ -963,7 +936,7 @@ export default function Home() {
 																		openWithdrawOrDeposit(e, 1);
 																	}}
 																>
-																	<img
+																	<Image
 																		src={withdraw_greenImg.src}
 																		className="wtdrw_depost_btn"
 																		alt="deposit"
@@ -994,19 +967,19 @@ export default function Home() {
 												<div className="dsp">
 													<div className="header_font_size">
 														<span>
-															<img
+															<Image
 																src={wbnbImg.src}
 																alt="btc img"
 																className="btc_img_width"
 															/>
-															<img
+															<Image
 																src={oioiImg.src}
 																alt="btc img"
 																className="btc_img_width ml_20_neg"
 															/>
 														</span>
 														{e.name}{" "}
-														<img
+														<Image
 															src={externalLinkRedImg.src}
 															onClick={() => {
 																goToUrl(e.contractExplorer);
@@ -1099,7 +1072,7 @@ export default function Home() {
 																		openWithdrawOrDeposit(e, 0);
 																	}}
 																>
-																	<img
+																	<Image
 																		src={depositRedImg.src}
 																		className="wtdrw_depost_btn"
 																		alt="deposit"
@@ -1115,7 +1088,7 @@ export default function Home() {
 																		openWithdrawOrDeposit(e, 1);
 																	}}
 																>
-																	<img
+																	<Image
 																		src={withdrawRedImg.src}
 																		className="wtdrw_depost_btn"
 																		alt="deposit"
@@ -1142,7 +1115,7 @@ export default function Home() {
 						<div className="second_section outer_section_first_red mb-5">
 							<div className="dsclmr_section">
 								<div className="mr_10">
-									<img
+									<Image
 										src={alertTriangleImg.src}
 										className="wdth_35"
 										alt="alert"
