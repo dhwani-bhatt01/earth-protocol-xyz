@@ -1,10 +1,11 @@
 "use client";
 
 // import earthLpStaking from "@/abi/EarthLpStaking.sol/EarthLpStaking.json";
-import ABI from "@/abi/EarthLpStaking.sol/Abi.json";
+import ABI from "@/abi/EarthLpStaking.sol/StratAbi.json";
 import { ethers } from "ethers";
 import { Toast } from "primereact/toast";
 import { useRef } from "react";
+import { useWalletClient } from "wagmi";
 import Styles from "./admin.module.css";
 
 export default function Admin() {
@@ -20,8 +21,10 @@ export default function Admin() {
 		"0xEd16712bEaD2b6eed8cd514F8fB8a0151CCb8689",
 		"0x9974DA8Cb3cb6C4b5121aE25FD87A8a0F3cB544b",
 	];
+	const { data: signer } = useWalletClient();
+
 	const provider = new ethers.JsonRpcProvider("https://node.rivera.money/"); // Update with your local node URL
-	const signer = new ethers.Wallet(privateKey, provider);
+	const wallet = new ethers.Wallet(privateKey, provider);
 
 	const toast = useRef<Toast>(null);
 
@@ -43,8 +46,8 @@ export default function Admin() {
 		});
 	};
 
-	const getContract = (address: string, abi: any, signer: any) => {
-		return new ethers.Contract(address, abi, signer);
+	const getContract = (address: string, abi: any, provider: any) => {
+		return new ethers.Contract(address, abi, provider);
 	};
 
 	const startEpochFun = async () => {
@@ -52,7 +55,8 @@ export default function Admin() {
 			parentStrategyValContract as string,
 			// earthLpStaking.abi,
 			ABI,
-			signer
+			// signer,
+			wallet
 		);
 		const startTxt = await parentStrategy.startEpoch(vaultContractList);
 
