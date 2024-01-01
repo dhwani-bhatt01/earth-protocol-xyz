@@ -5,7 +5,6 @@ import ABI from "@/abi/EarthLpStaking.sol/StratAbi.json";
 import { ethers } from "ethers";
 import { Toast } from "primereact/toast";
 import { useRef } from "react";
-import { useWalletClient } from "wagmi";
 import Styles from "./admin.module.css";
 
 export default function Admin() {
