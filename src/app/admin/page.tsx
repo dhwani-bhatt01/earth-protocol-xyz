@@ -1,7 +1,8 @@
 "use client";
 
-import earthLpStaking from "@/abi/EarthLpStaking.sol/EarthLpStaking.json";
+// import earthLpStaking from "@/abi/EarthLpStaking.sol/EarthLpStaking.json";
 // import ABI from "@/abi/EarthLpStaking.sol/StratAbi.json";
+import StratAbi from "@/abi/EarthLpStaking.sol/StratAbi.json";
 import { ethers } from "ethers";
 import { Toast } from "primereact/toast";
 import { useRef } from "react";
@@ -55,15 +56,13 @@ export default function Admin() {
 	const startEpochFun = async () => {
 		const parentStrategy = getContract(
 			parentStrategyValContract as string,
-			earthLpStaking.abi,
+			StratAbi,
 			// ABI,
 			signer
 			// wallet
 		);
 
-		const startTxt = await parentStrategy.startEpoch(vaultContractList, {
-			gasLimit: 800000,
-		});
+		const startTxt = await parentStrategy.startEpoch(vaultContractList);
 
 		await startTxt
 			.wait()
@@ -71,6 +70,7 @@ export default function Admin() {
 				showSuccess("Started");
 			})
 			.catch((error: any) => {
+				console.log(error);
 				showError("Something went wrong");
 			});
 	};
@@ -78,7 +78,7 @@ export default function Admin() {
 	const endEpochFun = async () => {
 		const parentStrategy = getContract(
 			parentStrategyValContract as string,
-			earthLpStaking.abi,
+			StratAbi,
 			// ABI,
 			signer
 			// wallet

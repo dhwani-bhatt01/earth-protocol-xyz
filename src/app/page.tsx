@@ -394,7 +394,7 @@ export default function Home() {
 					// );
 					// const balance = await asstsContract.balanceOf(address);
 					// console.log("wallet balance", ethers.formatEther(balance));
-					// console.log("tvl", fnum(totalAssets));
+					console.log("tvl", fnum(totalAssets));
 					// walletBalance = ethers.formatEther(balance);
 					// walletBalance = Number(walletBalance).toFixed(2);
 					// setWalletBalance(ethers.formatEther(balance));
