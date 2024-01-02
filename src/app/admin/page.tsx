@@ -1,15 +1,16 @@
 "use client";
 
-// import earthLpStaking from "@/abi/EarthLpStaking.sol/EarthLpStaking.json";
-import ABI from "@/abi/EarthLpStaking.sol/StratAbi.json";
+import earthLpStaking from "@/abi/EarthLpStaking.sol/EarthLpStaking.json";
+// import ABI from "@/abi/EarthLpStaking.sol/StratAbi.json";
 import { ethers } from "ethers";
 import { Toast } from "primereact/toast";
 import { useRef } from "react";
+import { useWalletClient } from "wagmi";
 import Styles from "./admin.module.css";
 
 export default function Admin() {
-	const privateKey =
-		"0xfc2f8cc0abd2d9d05229c8942e8a529d1ba9265eb1b4c720c03f7d074615afbb";
+	// const privateKey =
+	// 	"0xfc2f8cc0abd2d9d05229c8942e8a529d1ba9265eb1b4c720c03f7d074615afbb";
 
 	const parentStrategyValContract =
 		// "0x46ECf770a99d5d81056243deA22ecaB7271a43C7";
@@ -22,9 +23,11 @@ export default function Admin() {
 	];
 	const { data: signer } = useWalletClient();
 
-	const provider = new ethers.JsonRpcProvider("https://node.rivera.money/"); // Update with your local node URL
-	const wallet = new ethers.Wallet(privateKey, provider);
-
+	// const localProvider = new ethers.JsonRpcProvider(
+	// 	"https://node.rivera.money/"
+	// ); // Update with your local node URL
+	// const wallet = new ethers.Wallet(privateKey, localProvider);
+	// no wallet just provider from rainbow
 	const toast = useRef<Toast>(null);
 
 	const showError = (message: string) => {
@@ -52,12 +55,15 @@ export default function Admin() {
 	const startEpochFun = async () => {
 		const parentStrategy = getContract(
 			parentStrategyValContract as string,
-			// earthLpStaking.abi,
-			ABI,
-			// signer,
-			wallet
+			earthLpStaking.abi,
+			// ABI,
+			signer
+			// wallet
 		);
-		const startTxt = await parentStrategy.startEpoch(vaultContractList);
+
+		const startTxt = await parentStrategy.startEpoch(vaultContractList, {
+			gasLimit: 800000,
+		});
 
 		await startTxt
 			.wait()
@@ -72,11 +78,12 @@ export default function Admin() {
 	const endEpochFun = async () => {
 		const parentStrategy = getContract(
 			parentStrategyValContract as string,
-			// earthLpStaking.abi,
-			ABI,
+			earthLpStaking.abi,
+			// ABI,
 			signer
+			// wallet
 		);
-		const endTxt = await parentStrategy.endEpoch();
+		const endTxt = await parentStrategy.endEpoch({ gasLimit: 800000 });
 		await endTxt
 			.wait()
 			.then(async (e: any) => {
