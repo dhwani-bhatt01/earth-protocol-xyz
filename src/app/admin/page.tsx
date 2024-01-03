@@ -1,97 +1,157 @@
 "use client";
 
-// import earthLpStaking from "@/abi/EarthLpStaking.sol/EarthLpStaking.json";
+import earthLpStaking from "@/abi/EarthLpStaking.sol/EarthLpStaking.json";
+// import { ContractTransactionResponse } from "ethers";
 // import ABI from "@/abi/EarthLpStaking.sol/StratAbi.json";
-import StratAbi from "@/abi/EarthLpStaking.sol/StratAbi.json";
+// import StratAbi from "@/abi/EarthLpStaking.sol/StratAbi.json";
 import { ethers } from "ethers";
 import { Toast } from "primereact/toast";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useWalletClient } from "wagmi";
-import Styles from "./admin.module.css";
 
 export default function Admin() {
-	// const privateKey =
-	// 	"0xfc2f8cc0abd2d9d05229c8942e8a529d1ba9265eb1b4c720c03f7d074615afbb";
+	const [isStarting, setIsStarting] = useState(false);
+	// const parentStrategyValContract =
+	// 	"0x25adf247ac836d35be924f4b701a0787a30d46a9";
+	// const vaultContractList = [
+	// 	"0x55FD5B67B115767036f9e8af569B281A8A544a12",
+	// 	"0xE7C0E6b67b58e36BcAA45c2b783f384555C42d26",
+	// 	// "0x74c5e75798b33d38abee64f7ec63698b7e0a10f1",
+	// 	// "0xe8d223328543Cc10Edaa3292CE12C320CE43A099",
+	// ];
 
 	const parentStrategyValContract =
-		// "0x46ECf770a99d5d81056243deA22ecaB7271a43C7";
-		"0x86E6b3c84eaaDa895017b5ad1A44e9ea63c3cCe5";
+		// "0x25ADF247aC836D35be924f4b701A0787A30d46a9";
+		"0x25adf247ac836d35be924f4b701a0787a30d46a9";
 	const vaultContractList = [
-		// "0x3b8225C88a66aF1C00416bCa3fbF938D128B84b9",
-		// "0x672058B73396C78556fdddEc090202f066B98D71",
-		"0xEd16712bEaD2b6eed8cd514F8fB8a0151CCb8689",
-		"0x9974DA8Cb3cb6C4b5121aE25FD87A8a0F3cB544b",
+		// "0x55FD5B67B115767036f9e8af569B281A8A544a12",
+		// "0xE7C0E6b67b58e36BcAA45c2b783f384555C42d26",
+		"0x74c5e75798b33d38abee64f7ec63698b7e0a10f1",
+		"0xe8d223328543Cc10Edaa3292CE12C320CE43A099",
 	];
-	const { data: signer } = useWalletClient();
-
-	// const localProvider = new ethers.JsonRpcProvider(
-	// 	"https://node.rivera.money/"
-	// ); // Update with your local node URL
-	// const wallet = new ethers.Wallet(privateKey, localProvider);
-	// no wallet just provider from rainbow
+	const { data: signer, error, fetchStatus } = useWalletClient();
 	const toast = useRef<Toast>(null);
+	console.log(signer, error, fetchStatus, "TESTING");
 
-	const showError = (message: string) => {
-		toast.current?.show({
-			severity: "error",
-			summary: "Error",
-			detail: message,
-			life: 3000,
-		});
-	};
+	useEffect(() => {
+		checkEpochValue();
+		// getHistoricalData();
+	}, [signer]);
 
-	const showSuccess = (message: string) => {
-		toast.current?.show({
-			severity: "success",
-			summary: "Success",
-			detail: message,
-			life: 3000,
-		});
-	};
+	// const showError = (message: string) => {
+	// 	toast.current?.show({
+	// 		severity: "error",
+	// 		summary: "Error",
+	// 		detail: message,
+	// 		life: 3000,
+	// 	});
+	// };
+
+	// const showSuccess = (message: string) => {
+	// 	toast.current?.show({
+	// 		severity: "success",
+	// 		summary: "Success",
+	// 		detail: message,
+	// 		life: 3000,
+	// 	});
+	// };
 
 	const getContract = (address: string, abi: any, provider: any) => {
 		return new ethers.Contract(address, abi, provider);
 	};
 
+	// const startEpochFun = async () => {
+	// 	const parentStrategy = getContract(
+	// 		parentStrategyValContract as string,
+	// 		earthLpStaking.abi,
+	// 		signer
+	// 	);
+	// 	const startTxt = await parentStrategy.startEpoch(vaultContractList);
+	// 	await startTxt
+	//   await startTxt.wait();
+	// 		.then(async (e: any) => {
+	// 			showSuccess("Started");
+	// 		})
+	// 		.catch((error: any) => {
+	// 			showError("Something went wrong");
+	// 		});
+	// };
 	const startEpochFun = async () => {
-		const parentStrategy = getContract(
-			parentStrategyValContract as string,
-			StratAbi,
-			// ABI,
-			signer
-			// wallet
-		);
+		try {
+			setIsStarting(true);
+			console.log(signer, "signer it is");
+			const parentStrategy = getContract(
+				parentStrategyValContract as string,
+				earthLpStaking.abi,
+				signer
+			);
 
-		const startTxt = await parentStrategy.startEpoch(vaultContractList);
+			const startTxt = await parentStrategy.startEpoch(vaultContractList);
 
-		await startTxt
-			.wait()
-			.then(async (e: any) => {
-				showSuccess("Started");
-			})
-			.catch((error: any) => {
-				console.log(error);
-				showError("Something went wrong");
-			});
+			// Wait for the transaction to be mined
+			await startTxt.wait();
+			console.log(startTxt);
+
+			console.log("Transaction started successfully");
+		} catch (error) {
+			console.error(error);
+			console.log("something went wrong");
+		} finally {
+			setIsStarting(false);
+		}
 	};
 
-	const endEpochFun = async () => {
+	const checkEpochValue = async () => {
 		const parentStrategy = getContract(
 			parentStrategyValContract as string,
-			StratAbi,
-			// ABI,
+			earthLpStaking.abi,
 			signer
-			// wallet
 		);
-		const endTxt = await parentStrategy.endEpoch({ gasLimit: 800000 });
-		await endTxt
-			.wait()
-			.then(async (e: any) => {
-				showSuccess("Ended");
-			})
-			.catch((error: any) => {
-				showError("Something went wrong");
-			});
+		const epochRunningVal = await parentStrategy.epochRunning();
+		console.log("epochRunningVal", epochRunningVal);
+	};
+
+	// const endEpochFun = async () => {
+	// 	const parentStrategy = getContract(
+	// 		parentStrategyValContract as string,
+	// 		earthLpStaking.abi,
+	// 		signer
+	// 	);
+	// 	const endTxt = await parentStrategy.endEpoch();
+	// 	await endTxt
+	// 		.wait()
+	// 		.then(async (e: any) => {
+	// 			showSuccess("Ended");
+	// 		})
+	// 		.catch((error: any) => {
+	// 			showError("Something went wrong");
+	// 		});
+	// };
+
+	const endEpochFun = async () => {
+		try {
+			setIsStarting(true);
+
+			const parentStrategy = getContract(
+				parentStrategyValContract as string,
+				earthLpStaking.abi,
+				signer
+			);
+
+			const enTxt = await parentStrategy.endEpoch();
+
+			// Wait for the transaction to be mined
+			await enTxt; //mine hone m error h
+			console.log(enTxt);
+
+			// showSuccess("Ended");
+			console.log("transaction ended successfully");
+		} catch (error) {
+			console.error(error);
+			console.log("Something went wrong");
+		} finally {
+			setIsStarting(false);
+		}
 	};
 
 	return (
@@ -103,10 +163,7 @@ export default function Admin() {
 					<div>
 						<div>
 							{" "}
-							<button
-								className={`${Styles.btn} ${Styles.btn_design}`}
-								onClick={startEpochFun}
-							>
+							<button className="btn btn_desgn" onClick={startEpochFun}>
 								Start Epoch
 							</button>
 						</div>

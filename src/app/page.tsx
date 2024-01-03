@@ -2,8 +2,7 @@
 
 import earthAutoCompoundingVaultPublicJson from "@/abi/EarthAutoCompoundingVaultPublic.sol/EarthAutoCompoundingVaultPublic.json";
 // import ABI from "@/abi/EarthLpStaking.sol/StratAbi.json";
-import StratAbi from "@/abi/EarthLpStaking.sol/StratAbi.json";
-import VaultAbi from "@/abi/EarthLpStaking.sol/VaultAbi.json";
+import earthLpStaking from "@/abi/EarthLpStaking.sol/EarthLpStaking.json";
 import erc20Json from "@/abi/out/ERC20.sol/ERC20.json";
 import oioiImg from "@/assets/images/0101v2.png";
 import alertTriangleImg from "@/assets/images/alertTriangle.svg";
@@ -235,22 +234,21 @@ const CustomAccordianHeader2: React.FC<CustomTabHeaderProps> = ({
 
 export default function Home() {
 	// const baseRPCUrl = "https://opbnb-mainnet-rpc.bnbchain.org";
-	const baseRPCUrl = "https://node.rivera.money/";
+	const baseRPCUrl = "https://goerli.base.org";
 
 	const parentStrategyValContractExplorer =
 		// "https://mainnet.opbnbscan.com/address/0x86E6b3c84eaaDa895017b5ad1A44e9ea63c3cCe5";
-		"https://node.rivera.money/address/0x86E6b3c84eaaDa895017b5ad1A44e9ea63c3cCe5";
+		// "https://node.rivera.money/address/0x86E6b3c84eaaDa895017b5ad1A44e9ea63c3cCe5";
+		"https://goerli.basescan.org/address/0x25adf247ac836d35be924f4b701a0787a30d46a9";
 	const parentStrategyValContract =
 		// "0x46ECf770a99d5d81056243deA22ecaB7271a43C7";
-		"0x86E6b3c84eaaDa895017b5ad1A44e9ea63c3cCe5";
+		// "0x86E6b3c84eaaDa895017b5ad1A44e9ea63c3cCe5";
+		"0x25adf247ac836d35be924f4b701a0787a30d46a9";
 	const staticValutList = [
-		// "0xAbaf80156857E05b1EB162552Bea517b25F29aD9",
-		// "0xA7B88e482d3C9d17A1b83bc3FbeB4DF72cB20478",
-		"0xEd16712bEaD2b6eed8cd514F8fB8a0151CCb8689",
-		"0x9974DA8Cb3cb6C4b5121aE25FD87A8a0F3cB544b",
+		"0x74c5e75798b33d38abee64f7ec63698b7e0a10f1",
+		"0xe8d223328543Cc10Edaa3292CE12C320CE43A099",
 	];
-	// const staticLpValut = ["0x3dbfDf42AEbb9aDfFDe4D8592D61b1de7bd7c26a"];
-	const staticLpValut = ["0xe2C3E1D77144724Ae7551a14535dFe6b6A00f871"];
+	const staticLpValut = ["0x6AB8c9590bD89cBF9DCC90d5efEC4F45D5d219be"];
 	const [epochRunning, setEpochRunning] = useState<any>();
 	const [activeIndex, setActiveIndex] = useState(0);
 	const [isDataLoadng, setIsDataLoadng] = useState(false);
@@ -351,21 +349,24 @@ export default function Home() {
 				let walletBalance = "";
 				console.log("vaultAddress vaultAddress", vaultAddressVal);
 				const response = await fetch("/vaultDetails.json");
+				console.log("response", response);
 				const data = await response.json();
+				console.log("data", data);
 				const valutDetailsInJson = data[vaultAddressVal as string];
-				const assetAbiResponse = await fetch(
-					data[vaultAddressVal as string].assetAbi
-				);
-				const assetAbiResponseJson = await assetAbiResponse.json();
+				console.log("valutDetailsInJson", valutDetailsInJson);
+				// const assetAbiResponse = await fetch(
+				// 	data[vaultAddressVal as string].assetAbi
+				// );
+				// const assetAbiResponseJson = await assetAbiResponse.json();
 
 				const localProvider = new ethers.JsonRpcProvider(baseRPCUrl);
 				const vaultContract = getContract(
 					vaultAddressVal as string,
-					// earthAutoCompoundingVaultPublicJson.abi,
-					VaultAbi,
+					earthAutoCompoundingVaultPublicJson.abi,
+					// VaultAbi,
 					localProvider
 				);
-
+				console.log("vaultContract", vaultContract);
 				let totalAssets = await vaultContract.totalAssets(); //it will return the total assets of the valut
 				totalAssets = ethers.formatEther(totalAssets);
 
@@ -374,8 +375,8 @@ export default function Home() {
 					totalSupply = ethers.formatEther(totalSupply);
 					console.log(totalSupply);
 					// debugger;
-					const assetAdress = await vaultContract.asset();
-					console.log("asset adress: " + assetAdress);
+					//   const assetAdress = await vaultContract.asset();
+					//   console.log("asset adress: " + assetAdress);
 					// debugger;
 					let share = await vaultContract.balanceOf(address);
 					share = ethers.formatEther(share);
@@ -442,8 +443,7 @@ export default function Home() {
 
 			const parentStrategy = getContract(
 				parentStrategyValContract as string,
-				// earthLpStaking.abi,
-				StratAbi,
+				earthLpStaking.abi,
 				mantleLocalProvied
 			);
 			// debugger;
@@ -452,7 +452,7 @@ export default function Home() {
 			setEpochRunning(epochRunningVal);
 			console.log("parentStrategy is running", epochRunningVal);
 			// debugger;
-			const balanceOfPoolVal = await parentStrategy.balanceOf({
+			const balanceOfPoolVal = await parentStrategy.balanceOfPool({
 				gasLimit: 80000,
 			});
 			// debugger;
@@ -551,14 +551,14 @@ export default function Home() {
 		});
 	};
 
-	const showWarn = (header: string, message: string) => {
-		toast.current?.show({
-			severity: "warn",
-			summary: header,
-			detail: message,
-			life: 3000,
-		});
-	};
+	//   const showWarn = (header: string, message: string) => {
+	//     toast.current?.show({
+	//       severity: "warn",
+	//       summary: header,
+	//       detail: message,
+	//       life: 3000,
+	//     });
+	//   };
 
 	async function approve(assetsAddress: string) {
 		const contract = getContract(assetsAddress, erc20Json.abi, signer);
@@ -605,6 +605,7 @@ export default function Home() {
 		const assetAdress = await vaultContract.asset();
 
 		const erc20Contract = getContract(assetAdress, erc20Json.abi, signer);
+		console.log("erc20Contract", erc20Contract);
 		const allowance = await erc20Contract.allowance(address, valutAddressVal); //address:- login user address  //assetAdress:-valut asset address
 		setMaxLimit(ethers.formatEther(allowance));
 
@@ -945,7 +946,7 @@ export default function Home() {
 								</div>
 							</div>
 						</div>
-						<div>Hello</div>
+
 						<div className="second_section row mb-1">
 							{/* <h4 className='valut_header'>Vaults</h4> */}
 
