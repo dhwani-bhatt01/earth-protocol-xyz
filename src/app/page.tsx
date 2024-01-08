@@ -34,12 +34,7 @@ import { Dialog } from "primereact/dialog";
 import { TabPanel, TabView } from "primereact/tabview";
 import { Toast } from "primereact/toast";
 import { useEffect, useRef, useState } from "react";
-import {
-	useAccount,
-	useNetwork,
-	useSwitchNetwork,
-	useWalletClient,
-} from "wagmi";
+import { useAccount, useNetwork, useSigner, useSwitchNetwork } from "wagmi";
 import "./globals.css";
 
 interface CustomTabHeaderProps {
@@ -255,7 +250,7 @@ export default function Home() {
 	const [valutList, setvalutList] = useState<any>([]);
 	const [lpValutList, setLpValutList] = useState<any>([]);
 	const { address, isConnected } = useAccount();
-	const { data: signer } = useWalletClient();
+	const { data: signer } = useSigner();
 	const [loading, setLoading] = useState(false);
 	const toast = useRef<Toast>(null);
 	const [approvalWaitingVisible, setapprovalWaitingVisible] =
@@ -318,12 +313,12 @@ export default function Home() {
 						) {
 							const prsVal =
 								e.log_events[e.log_events.length - 1].decoded.params;
-							value = ethers.formatEther(prsVal[prsVal.length - 1].value);
+							value = ethers.utils.formatEther(prsVal[prsVal.length - 1].value);
 						} else if (
 							e.log_events[e.log_events.length - 1].decoded.name === "Deposit"
 						) {
 							const prsVal = e.log_events[0].decoded.params;
-							value = ethers.formatEther(prsVal[prsVal.length - 1].value);
+							value = ethers.utils.formatEther(prsVal[prsVal.length - 1].value);
 						}
 					}
 
@@ -331,7 +326,7 @@ export default function Home() {
 						date: time,
 						type: type,
 						txHash: txhash,
-						txfee: ethers.formatEther(txfee),
+						txfee: ethers.utils.formatEther(txfee),
 						value: value,
 					};
 					return returnVal;
@@ -359,7 +354,7 @@ export default function Home() {
 				// );
 				// const assetAbiResponseJson = await assetAbiResponse.json();
 
-				const localProvider = new ethers.JsonRpcProvider(baseRPCUrl);
+				const localProvider = new ethers.providers.JsonRpcProvider(baseRPCUrl);
 				const vaultContract = getContract(
 					vaultAddressVal as string,
 					earthAutoCompoundingVaultPublicJson.abi,
@@ -368,18 +363,18 @@ export default function Home() {
 				);
 				console.log("vaultContract", vaultContract);
 				let totalAssets = await vaultContract.totalAssets(); //it will return the total assets of the valut
-				totalAssets = ethers.formatEther(totalAssets);
+				totalAssets = ethers.utils.formatEther(totalAssets);
 
 				if (address) {
 					let totalSupply = await vaultContract.totalSupply();
-					totalSupply = ethers.formatEther(totalSupply);
+					totalSupply = ethers.utils.formatEther(totalSupply);
 					console.log(totalSupply);
 					// debugger;
 					//   const assetAdress = await vaultContract.asset();
 					//   console.log("asset adress: " + assetAdress);
 					// debugger;
 					let share = await vaultContract.balanceOf(address);
-					share = ethers.formatEther(share);
+					share = ethers.utils.formatEther(share);
 					const userShareVal = new Decimal(totalAssets)
 						.mul(new Decimal(share))
 						.div(new Decimal(totalSupply));
@@ -394,11 +389,11 @@ export default function Home() {
 					// 	provider
 					// );
 					// const balance = await asstsContract.balanceOf(address);
-					// console.log("wallet balance", ethers.formatEther(balance));
+					// console.log("wallet balance", ethers.utils.formatEther(balance));
 					console.log("tvl", fnum(totalAssets));
-					// walletBalance = ethers.formatEther(balance);
+					// walletBalance = ethers.utils.formatEther(balance);
 					// walletBalance = Number(walletBalance).toFixed(2);
-					// setWalletBalance(ethers.formatEther(balance));
+					// setWalletBalance(ethers.utils.formatEther(balance));
 				}
 
 				return {
@@ -439,7 +434,9 @@ export default function Home() {
 		try {
 			setIsDataLoadng(true);
 			// debugger;
-			const mantleLocalProvied = new ethers.JsonRpcProvider(baseRPCUrl);
+			const mantleLocalProvied = new ethers.providers.JsonRpcProvider(
+				baseRPCUrl
+			);
 
 			const parentStrategy = getContract(
 				parentStrategyValContract as string,
@@ -456,7 +453,8 @@ export default function Home() {
 				gasLimit: 80000,
 			});
 			// debugger;
-			const formateBalanceOfPoolVal = ethers.formatEther(balanceOfPoolVal);
+			const formateBalanceOfPoolVal =
+				ethers.utils.formatEther(balanceOfPoolVal);
 			// debugger;
 			setStartingBalance(Number(formateBalanceOfPoolVal).toFixed(8));
 			console.log("balanceOfPoolVal", balanceOfPoolVal);
@@ -597,7 +595,7 @@ export default function Home() {
 	// 		depositAmout = "0";
 	// 	}
 
-	// 	let localProvider = new ethers.JsonRpcProvider(baseRPCUrl);
+	// 	let localProvider = new ethers.providers.JsonRpcProvider(baseRPCUrl);
 	// 	let vaultContract = getContract(
 	// 		valutAddressVal as string,
 	// 		earthAutoCompoundingVaultPublicJson.abi,
@@ -608,9 +606,9 @@ export default function Home() {
 	// 	const erc20Contract = getContract(assetAdress, erc20Json.abi, signer);
 	// 	console.log("erc20Contract", erc20Contract);
 	// 	const allowance = await erc20Contract.allowance(address, valutAddressVal); //address:- login user address  //assetAdress:-valut asset address
-	// 	setMaxLimit(ethers.formatEther(allowance));
+	// 	setMaxLimit(ethers.utils.formatEther(allowance));
 
-	// 	const maxLimitVal = new Decimal(ethers.formatEther(allowance));
+	// 	const maxLimitVal = new Decimal(ethers.utils.formatEther(allowance));
 	// 	const despositAmtVal = new Decimal(depositAmout);
 	// 	if (despositAmtVal.gt(maxLimitVal)) {
 	// 		setisApproved(false);

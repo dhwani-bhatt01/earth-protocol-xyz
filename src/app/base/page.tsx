@@ -125,12 +125,12 @@ export default function Base() {
 						) {
 							const prsVal =
 								e.log_events[e.log_events.length - 1].decoded.params;
-							value = ethers.formatEther(prsVal[prsVal.length - 1].value);
+							value = ethers.utils.formatEther(prsVal[prsVal.length - 1].value);
 						} else if (
 							e.log_events[e.log_events.length - 1].decoded.name === "Deposit"
 						) {
 							const prsVal = e.log_events[0].decoded.params;
-							value = ethers.formatEther(prsVal[prsVal.length - 1].value);
+							value = ethers.utils.formatEther(prsVal[prsVal.length - 1].value);
 						}
 					}
 
@@ -138,7 +138,7 @@ export default function Base() {
 						date: time,
 						type: type,
 						txHash: txhash,
-						txfee: ethers.formatEther(txfee),
+						txfee: ethers.utils.formatEther(txfee),
 						value: value,
 					};
 					return returnVal;
@@ -163,7 +163,7 @@ export default function Base() {
 				);
 				const assetAbiResponseJson = await assetAbiResponse.json();
 
-				const localProvider = new ethers.JsonRpcProvider(baseRPCUrl);
+				const localProvider = new ethers.providers.JsonRpcProvider(baseRPCUrl);
 				const vaultContract = getContract(
 					vaultAddressVal as string,
 					earthAutoCompoundingVaultPublicJson.abi,
@@ -171,16 +171,16 @@ export default function Base() {
 				);
 
 				let totalAssets = await vaultContract.totalAssets(); //it will return the total assets of the valut
-				totalAssets = ethers.formatEther(totalAssets);
+				totalAssets = ethers.utils.formatEther(totalAssets);
 
 				if (address) {
 					let totalSupply = await vaultContract.totalSupply();
-					totalSupply = ethers.formatEther(totalSupply);
+					totalSupply = ethers.utils.formatEther(totalSupply);
 
 					const assetAdress = await vaultContract.asset();
 					console.log("asset adress: " + assetAdress);
 					let share = await vaultContract.balanceOf(address);
-					share = ethers.formatEther(share);
+					share = ethers.utils.formatEther(share);
 					const userShareVal = new Decimal(totalAssets)
 						.mul(new Decimal(share))
 						.div(new Decimal(totalSupply));
@@ -194,11 +194,11 @@ export default function Base() {
 						provider
 					);
 					const balance = await asstsContract.balanceOf(address);
-					console.log("wallet balance", ethers.formatEther(balance));
+					console.log("wallet balance", ethers.utils.formatEther(balance));
 					console.log("tvl", fnum(totalAssets));
-					walletBalance = ethers.formatEther(balance);
+					walletBalance = ethers.utils.formatEther(balance);
 					walletBalance = Number(walletBalance).toFixed(2);
-					setWalletBalance(ethers.formatEther(balance));
+					setWalletBalance(ethers.utils.formatEther(balance));
 				}
 
 				return {
@@ -238,7 +238,7 @@ export default function Base() {
 	async function getDeployedValut() {
 		setIsDataLoadng(true);
 
-		const mantleLocalProvied = new ethers.JsonRpcProvider(baseRPCUrl);
+		const mantleLocalProvied = new ethers.providers.JsonRpcProvider(baseRPCUrl);
 
 		const parentStrategy = getContract(
 			parentStrategyValContract as string,
@@ -249,7 +249,7 @@ export default function Base() {
 		setEpochRunning(epochRunningVal);
 		console.log("parentStrategy is running", epochRunningVal);
 		const balanceOfPoolVal = await parentStrategy.balanceOfPool();
-		const formateBalanceOfPoolVal = ethers.formatEther(balanceOfPoolVal);
+		const formateBalanceOfPoolVal = ethers.utils.formatEther(balanceOfPoolVal);
 		setStartingBalance(Number(formateBalanceOfPoolVal).toFixed(8));
 		console.log("balanceOfPoolVal", balanceOfPoolVal);
 
@@ -381,7 +381,7 @@ export default function Base() {
 			depositAmout = "0";
 		}
 
-		let localProvider = new ethers.JsonRpcProvider(baseRPCUrl);
+		let localProvider = new ethers.providers.JsonRpcProvider(baseRPCUrl);
 		let vaultContract = getContract(
 			valutAddressVal as string,
 			earthAutoCompoundingVaultPublicJson.abi,
@@ -391,9 +391,9 @@ export default function Base() {
 
 		const erc20Contract = getContract(assetAdress, erc20Json.abi, signer);
 		const allowance = await erc20Contract.allowance(address, valutAddressVal); //address:- login user address  //assetAdress:-valut asset address
-		setMaxLimit(ethers.formatEther(allowance));
+		setMaxLimit(ethers.utils.formatEther(allowance));
 
-		const maxLimitVal = new Decimal(ethers.formatEther(allowance));
+		const maxLimitVal = new Decimal(ethers.utils.formatEther(allowance));
 		const despositAmtVal = new Decimal(depositAmout);
 		if (despositAmtVal.gt(maxLimitVal)) {
 			setisApproved(false);

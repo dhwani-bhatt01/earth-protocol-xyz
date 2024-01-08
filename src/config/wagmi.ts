@@ -1,5 +1,5 @@
 import { getDefaultWallets } from "@rainbow-me/rainbowkit";
-import { Chain, configureChains, createConfig } from "wagmi";
+import { Chain, configureChains, createClient } from "wagmi";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 
@@ -171,7 +171,7 @@ const zetaTestnetChain: Chain = {
 	},
 };
 
-export const { chains, publicClient } = configureChains(
+export const { chains, provider } = configureChains(
 	[opBNBChain, ethGoerliChain, riveraTestnetChain, zetaTestnetChain],
 	[
 		alchemyProvider({ apiKey: process.env.ALCHEMY_ID as string }),
@@ -185,8 +185,8 @@ const { connectors } = getDefaultWallets({
 	chains,
 });
 
-export const wagmiConfig = createConfig({
+export const wagmiConfig = createClient({
 	autoConnect: true,
 	connectors,
-	publicClient,
+	provider,
 });

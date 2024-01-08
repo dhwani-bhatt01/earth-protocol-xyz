@@ -13,37 +13,37 @@ import { chains, wagmiConfig } from "@/config/wagmi";
 import "./globals.css";
 
 interface Props {
-  children: React.ReactNode;
+	children: React.ReactNode;
 }
 
 export default function RootLayout(props: Props) {
-  const { children } = props;
+	const { children } = props;
 
-  return (
-    <html lang="en">
-      <body>
-        <WagmiConfig config={wagmiConfig}>
-          <RainbowKitProvider chains={chains}>
-            <div className="bg_gray">
-              <Menubar
-                start={
-                  <Link href="/">
-                    <Image
-                      alt="earth-protocol-logo"
-                      src={EarthProtocolLogo.src}
-                      width={EarthProtocolLogo.width}
-                      height={EarthProtocolLogo.height}
-                    />
-                  </Link>
-                }
-                end={<ConnectButton />}
-                className="custom-container"
-              />
-            </div>
-            {children}
-          </RainbowKitProvider>
-        </WagmiConfig>
-      </body>
-    </html>
-  );
+	return (
+		<html lang="en">
+			<body>
+				<WagmiConfig client={wagmiConfig}>
+					<RainbowKitProvider chains={chains}>
+						<div className="bg_gray">
+							<Menubar
+								start={
+									<Link href="/">
+										<Image
+											alt="earth-protocol-logo"
+											src={EarthProtocolLogo.src}
+											width={EarthProtocolLogo.width}
+											height={EarthProtocolLogo.height}
+										/>
+									</Link>
+								}
+								end={<ConnectButton />}
+								className="custom-container"
+							/>
+						</div>
+						{children}
+					</RainbowKitProvider>
+				</WagmiConfig>
+			</body>
+		</html>
+	);
 }

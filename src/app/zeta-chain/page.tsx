@@ -35,12 +35,7 @@ import { Dialog } from "primereact/dialog";
 import { TabPanel, TabView } from "primereact/tabview";
 import { Toast } from "primereact/toast";
 import { useEffect, useRef, useState } from "react";
-import {
-	useAccount,
-	useNetwork,
-	useSwitchNetwork,
-	useWalletClient,
-} from "wagmi";
+import { useAccount, useNetwork, useSigner, useSwitchNetwork } from "wagmi";
 
 function ZetaHome() {
 	const baseRPCUrl =
@@ -62,7 +57,7 @@ function ZetaHome() {
 	const [lpValutList, setLpValutList] = useState<any>([]);
 	const { address, isConnected } = useAccount();
 	// const provider = usePublicClient();
-	const { data: signer, isError, isLoading } = useWalletClient();
+	const { data: signer, isError, isLoading } = useSigner();
 	// const navigate = useNavigate();
 	const [loading, setLoading] = useState(false);
 	const toast = useRef<Toast>(null);
@@ -121,7 +116,7 @@ function ZetaHome() {
 				const assetAbiResponseJson = await assetAbiResponse.json();
 				// const assetAbiResponseJson = assetAbiResponse;
 
-				const localProvider = new ethers.JsonRpcProvider(baseRPCUrl);
+				const localProvider = new ethers.providers.JsonRpcProvider(baseRPCUrl);
 				const vaultContract = getContract(
 					vaultAddressVal as string,
 					earthAutoCompoundingVaultPublicJson.abi,
@@ -129,16 +124,16 @@ function ZetaHome() {
 				);
 
 				let totalAssets = await vaultContract.totalAssets(); //it will return the total assets of the valut
-				totalAssets = ethers.formatEther(totalAssets);
+				totalAssets = ethers.utils.formatEther(totalAssets);
 
 				if (address) {
 					let totalSupply = await vaultContract.totalSupply();
-					totalSupply = ethers.formatEther(totalSupply);
+					totalSupply = ethers.utils.formatEther(totalSupply);
 
 					const assetAdress = await vaultContract.asset();
 					console.log("asset adress: " + assetAdress);
 					let share = await vaultContract.balanceOf(address);
-					share = ethers.formatEther(share);
+					share = ethers.utils.formatEther(share);
 					const userShareVal = new Decimal(totalAssets)
 						.mul(new Decimal(share))
 						.div(new Decimal(totalSupply));
@@ -152,11 +147,11 @@ function ZetaHome() {
 						provider
 					);
 					const balance = await asstsContract.balanceOf(address);
-					console.log("wallet balance", ethers.formatEther(balance));
+					console.log("wallet balance", ethers.utils.formatEther(balance));
 					console.log("tvl", fnum(totalAssets));
-					walletBalance = ethers.formatEther(balance);
+					walletBalance = ethers.utils.formatEther(balance);
 					walletBalance = Number(walletBalance).toFixed(2);
-					setWalletBalance(ethers.formatEther(balance));
+					setWalletBalance(ethers.utils.formatEther(balance));
 				}
 
 				return {
@@ -195,7 +190,7 @@ function ZetaHome() {
 
 	async function getDeployedValut() {
 		setIsDataLoadng(true);
-		const mantleLocalProvied = new ethers.JsonRpcProvider(baseRPCUrl);
+		const mantleLocalProvied = new ethers.providers.JsonRpcProvider(baseRPCUrl);
 
 		const parentStrategy = getContract(
 			parentStrategyValContract as string,
@@ -342,7 +337,7 @@ function ZetaHome() {
 			depositAmout = "0";
 		}
 		debugger;
-		let localProvider = new ethers.JsonRpcProvider(baseRPCUrl);
+		let localProvider = new ethers.providers.JsonRpcProvider(baseRPCUrl);
 		let vaultContract = getContract(
 			valutAddressVal as string,
 			earthAutoCompoundingVaultPublicJson.abi,
@@ -361,9 +356,9 @@ function ZetaHome() {
 
 		const allowance = await erc20Contract.allowance(address, valutAddressVal);
 		console.log(allowance, "allowance"); //address:- login user address  //assetAdress:-valut asset address
-		setMaxLimit(ethers.formatEther(allowance));
+		setMaxLimit(ethers.utils.formatEther(allowance));
 
-		const maxLimitVal = new Decimal(ethers.formatEther(allowance));
+		const maxLimitVal = new Decimal(ethers.utils.formatEther(allowance));
 		const despositAmtVal = new Decimal(depositAmout);
 		if (despositAmtVal.gt(maxLimitVal)) {
 			setisApproved(false);
@@ -374,7 +369,6 @@ function ZetaHome() {
 
 	const deposit = async () => {
 		setTransactionType("Deposit");
-		debugger;
 		const despositAmtVal = new Decimal(depositAmout);
 		const walletBalanceVal = new Decimal(walletBalance);
 
@@ -974,7 +968,7 @@ function ZetaHome() {
 																		width={10}
 																		height={10}
 																	/>
-																	Depost
+																	Deposit
 																</button>
 															</div>
 															<div className="wdth_50">
@@ -1136,7 +1130,7 @@ function ZetaHome() {
 																		width={10}
 																		height={10}
 																	/>
-																	Depost
+																	Deposit
 																</button>
 															</div>
 															<div className="wdth_50">
