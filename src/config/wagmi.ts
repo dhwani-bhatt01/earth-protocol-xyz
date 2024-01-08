@@ -152,8 +152,27 @@ const modeChain: Chain = {
 	testnet: true,
 };
 
+const zetaTestnetChain: Chain = {
+	id: 7001,
+	name: "ZetaChain Testnet",
+	network: "ZETA",
+	nativeCurrency: {
+		decimals: 18,
+		name: "ZetaChain Testnet",
+		symbol: "ZETA",
+	},
+	rpcUrls: {
+		default: {
+			http: ["https://zetachain-athens-evm.blockpi.network/v1/rpc/public"],
+		},
+		public: {
+			http: ["https://zetachain-athens-evm.blockpi.network/v1/rpc/public"],
+		},
+	},
+};
+
 export const { chains, publicClient } = configureChains(
-	[opBNBChain, ethGoerliChain, riveraTestnetChain],
+	[opBNBChain, ethGoerliChain, riveraTestnetChain, zetaTestnetChain],
 	[
 		alchemyProvider({ apiKey: process.env.ALCHEMY_ID as string }),
 		publicProvider(),
